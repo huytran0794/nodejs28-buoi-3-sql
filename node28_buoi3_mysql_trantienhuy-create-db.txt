@@ -1,0 +1,352 @@
+-- DROP IF ANOTHER DB WITH SAME NAME EXIST
+DROP DATABASE IF EXISTS db_baitap_mysql;
+
+-- CREATE DB BTVN BUOI 3 - MYSQL
+CREATE DATABASE db_baitap_mysql;
+
+-- Test create db
+SHOW CREATE DATABASE db_baitap_mysql;
+
+-- Use created db
+USE db_baitap_mysql;
+
+-- Create main tables
+
+-- Table user
+CREATE TABLE users (
+	user_id INT PRIMARY KEY AUTO_INCREMENT,
+	full_name VARCHAR(255) NOT NULL,
+	email VARCHAR(255),
+	passwords VARCHAR(255) NOT NULL
+);
+
+-- Table restaurant
+CREATE TABLE restaurant (
+	res_id INT PRIMARY KEY AUTO_INCREMENT,
+	res_name VARCHAR(255) NOT NULL,
+	image VARCHAR(255),
+	descriptions VARCHAR(255)
+);
+
+-- Table food_type
+CREATE TABLE food_type (
+	type_id INT PRIMARY KEY AUTO_INCREMENT,
+	type_name VARCHAR(255) NOT NULL
+);
+
+-- Table food
+CREATE TABLE food (
+	food_id INT PRIMARY KEY AUTO_INCREMENT,
+	food_name VARCHAR(255) NOT NULL,
+	image VARCHAR(255),
+	price FLOAT NOT NULL,
+	descriptions VARCHAR(255),
+	type_id INT,
+	FOREIGN KEY (type_id) REFERENCES food_type(type_id)
+);
+
+-- Table subfood
+CREATE TABLE sub_food (
+	sub_id INT PRIMARY KEY AUTO_INCREMENT,
+	sub_name VARCHAR(255) NOT NULL,
+	sub_price FLOAT,
+	food_id INT,
+	FOREIGN KEY (food_id) REFERENCES food(food_id)
+);
+
+
+-- Create join table from many-many -relationship
+
+-- Join table rate_res (users, restaurant)
+CREATE TABLE rate_res (
+	user_id INT,
+	res_id INT,
+	amount INT,
+	date_rate DATETIME,
+	PRIMARY KEY(user_id, res_id),
+   FOREIGN KEY(user_id) REFERENCES users(user_id),
+   FOREIGN KEY(res_id) REFERENCES restaurant(res_id)
+);
+
+-- CREATE: Join table like_res (users, restaurant)
+CREATE TABLE like_res (
+	user_id INT,
+	res_id INT,
+	date_rate DATETIME,
+	PRIMARY KEY(user_id, res_id),
+   FOREIGN KEY(user_id) REFERENCES users(user_id),
+   FOREIGN KEY(res_id) REFERENCES restaurant(res_id)
+);
+
+
+-- CREATE: Join table orders (users, food)
+CREATE TABLE orders (
+	user_id INT,
+	food_id INT,
+	amount INT,
+	codes VARCHAR(255),
+	arr_sub_id VARCHAR(255),
+	PRIMARY KEY(user_id, food_id),
+   FOREIGN KEY(user_id) REFERENCES users(user_id),
+   FOREIGN KEY(food_id) REFERENCES food(food_id)
+);
+
+
+-- Alter: Update some column data constraint by using alter and modify
+
+-- col amount - rate_res - not null
+ALTER TABLE rate_res
+MODIFY COLUMN amount INT NOT NULL;
+
+-- col amount - orders - not null
+ALTER TABLE orders
+MODIFY COLUMN amount INT NOT NULL;
+
+-- col date_rate - like_res - change name to date_like
+ALTER TABLE like_res
+RENAME COLUMN date_rate TO date_like;
+
+-- Insert data for tables
+-- Insert data restaurant (6 normal, 6 abnormal data)
+INSERT INTO restaurant (res_name, image, descriptions)
+VALUES
+("EL POLLO LOCO", "https://cdn.winsightmedia.com/platform/files/public/750x560/elpolloloco_1653490835.jpg?VersionId=MUrs2TVcRgxUDASniZ1Cf9jPWAGBmiVn", "Technomic's Top 500 Chain Restaurant Report ranks the highest-grossing brands in the U.S. Explore the data to see how the biggest chains fared in 2021."),
+("P.F. CHANG'S", "https://i.insider.com/577670634321f1d01a8b55bd?width=700&format=jpeg&auto=webp" , "In 2012, the private-equity firm Centerbridge Partners purchased the chain for a $1.1 billion, putting the franchise back into the private sector and helping to boost profits."),
+("Panda Express", "https://static.stacker.com/s3fs-public/styles/slide_desktop/s3/croppedshutterstock1728499318VEV8jpg.webp", "Their success allowed them to open a number of similar restaurants in the surrounding community"),
+("PAPA MURPHY'S PIZZA", "https://cdn.winsightmedia.com/platform/files/public/2022-05/background/PapaMurphys.jpg", "2021 U.S. Sales ($000,000)	$809"),
+("Maggiano's Little Italy", "https://i.insider.com/57769c384321f136158b5793?width=700&format=jpeg&auto=webp", "The family-style chain features classic homemade Italian dishes like spaghetti and meatballs, lasagna, and chicken parmesan."),
+("Wetzel's Pretzels","https://en.wikipedia.org/wiki/File:Wetzel%27s_Pretzels_-_Tysons_Corner_Mall_(6923513884).jpg", "This is a very good restaurant"),
+("Chez Panisse, Berkeley, California", "https://static4.businessinsider.com/image/54357efbecad04ac4806f08d-1200/22-chez-panisse-berkeley-california.jpg", "The atmosphere was cozy and intimate, and our server was attentive but unobtrusive. Food was delicious — had the pizza with Monterey Bay squid and the goat cheese as our appetizers, then had the chicken and sole as our mains"),
+("", "", ""),
+("","", "The name Arby's comes from its founders Leroy and Forrest Raffel, known as the Raffel Brothers—hence R.B.'s"),
+("","https://static.stacker.com/s3fs-public/styles/slide_desktop/s3/croppedshutterstock130811843898LEjpg_0.webp", ""),
+("", "https://static.stacker.com/s3fs-public/styles/slide_desktop/s3/croppedshutterstock558201505E5VCjpg_0.webp", "Despite its name, Texas Roadhouse is a Western-themed steak joint that's headquartered in Louisville, Kentucky, and has origins in Clarksville, Indiana."),
+("Bavette's", "", "ffff"),
+("Hersh's", "", "ffaa"),
+("Polo Lounge @ The Beverly Hills Hotel", "https://resizer.otstatic.com/v2/photos/wide-huge/1/25696412.jpg", ""),
+("Sushi Nakazawa - Sushi Bar", "https://resizer.otstatic.com/v2/photos/xlarge/1/23670896.jpg", "Great service, even better food. The best sushi in New York easily, if not America. Try it at least once and it will change your perspective on food entirely.");
+
+-- Insert data users
+INSERT INTO users (full_name, email, passwords)
+VALUES
+("Olivia Cooke", "oliviacooke@gmail.com", "1234567"),
+("Elijah Lynch","sed.dolor.fusce@google.com","dvna29na"),
+("Fallon Perry","vestibulum.mauris@icloud.com","yeahHomie12"),
+("Zia Acevedo","ut.semper@yahoo.org","nopassword@123H"),
+("Lacota Cantrell","gravida.sagittis@hotmail.com","laporta@Can_123"),
+("Jelani Robbins","mi.lacinia@yahoo.ca","robjela100387"),
+("Hyacinth Singleton","montes.nascetur@hotmail.net","monasceInG1e"),
+("Dale Campos","laoreet.posuere.enim@protonmail.couk","dalaos12_pos"),
+("Brennan Tyler","turpis.egestas@hotmail.net","ezturtylB"),
+("Tanek Snyder","velit.eu@yahoo.couk","V1tS_Der"),
+("Lyle Gregory","faucibus.id@google.ca","eratgf@g1"),
+("", "", ""),
+("", "", "fke1p@d"),
+("", "faker@email.com", "fke1p@d"),
+("", "faker2@email.com", ""),
+("Thane Crawford", "", ""),
+("Rama Salazar", "", "sala@d"),
+("Thor Hah", "interdum.curabitur@yahoo.org", "inthoRHah2"),
+("Orson Reilly", "consequat.lectus@google.net", "");
+-- Insert data join: rate_res
+INSERT INTO rate_res (user_id, res_id, amount, date_rate)
+VALUES
+(1,1,2,"2021-02-27"),
+(1,2,5,"2021-12-22"),
+(1,3,1,"2021-07-02"),
+(1,4,0,"2022-12-30"),
+(1,5,1,"2022-11-19"),
+(1,6,1,"2021-05-11"),
+(1,7,5,"2022-10-09"),
+(1,10,2,"2021-08-15"),
+(1,11,3,"2022-04-08"),
+(2,2,2,"2021-04-25"),
+(2,3,4,"2021-02-04"),
+(2,7,3,"2021-06-18"),
+(2,5,2,"2022-06-12"),
+(2,13,1,"2021-01-10"),
+(2,15,5,"2021-01-11"),
+(3,4,2,"2022-10-09"),
+(3,7,5,"2021-08-15"),
+(3,11,0,"2022-04-08"),
+(3,13,1,"2022-12-09"),
+(4,4,2,"2022-10-09"),
+(4,7,3,"2022-05-16"),
+(4,11,4,"2021-12-12"),
+(5,11,5,"2021-06-05"),
+(5,12,5,"2021-09-26"),
+(5,13,5,"2022-12-09"),
+(5,1,5,"2021-03-08"),
+(6,3,1,"2022-03-17"),
+(6,4,1,"2021-01-13"),
+(7,1,0,"2021-03-22"),
+(7,7,2,"2021-06-06"),
+(7,5,1,"2022-01-06"),
+(8,1,2,"2021-01-24"),
+(8,7,3,"2022-05-10"),
+(8,2,4,"2022-07-16"),
+(8,15,2,"2021-11-07"),
+(8,11,2,"2021-05-11"),
+(9,1,3,"2021-01-24"),
+(10,7,3,"2021-06-21"),
+(11,1,4,"2021-05-15"),
+(11,3,1,"2021-12-12"),
+(11,4,0,"2022-07-16"),
+(11,15,0,"2021-11-07"),
+(19,2,2,"2022-04-15"),
+(19,9,4,"2022-08-11"),
+(19,11,5,"2021-04-11");
+-- Insert data join: like_res
+INSERT INTO like_res (user_id, res_id, date_like)
+VALUES
+(1,1,"2021-02-27"),
+(1,2,"2021-12-22"),
+(1,3,"2021-07-02"),
+(1,4,"2022-12-30"),
+(1,5,"2022-11-19"),
+(1,6,"2021-05-11"),
+(1,7,"2022-10-09"),
+(1,10,"2021-08-15"),
+(1,11,"2022-04-08"),
+(2,2,"2021-04-25"),
+(2,3,"2021-02-04"),
+(2,7,"2021-06-18"),
+(2,5,"2022-06-12"),
+(2,13,"2021-01-10"),
+(2,15,"2021-01-10"),
+(3,4,"2022-10-09"),
+(3,7,"2021-08-15"),
+(3,11,"2022-04-08"),
+(3,13,"2022-12-09"),
+(4,4,"2022-10-09"),
+(4,7,"2022-05-16"),
+(4,11,"2021-12-12"),
+(5,11,"2021-06-05"),
+(5,12,"2021-09-26"),
+(5,13,"2022-12-09"),
+(5,1,"2021-03-08"),
+(6,3,"2022-03-17"),
+(6,4,"2021-01-13"),
+(7,1,"2021-03-22"),
+(7,7,"2021-06-06"),
+(7,5,"2022-01-06"),
+(8,1,"2021-01-24"),
+(8,7,"2022-05-10"),
+(8,2,"2022-07-16"),
+(8,15,"2021-11-07"),
+(8,11,"2021-05-11"),
+(9,1,"2021-01-24"),
+(10,7,"2021-06-21"),
+(11,1,"2021-05-15"),
+(11,3,"2021-12-12"),
+(11,4,"2022-07-16"),
+(11,15,"2021-11-07"),
+(19,2,"2022-04-15"),
+(19,9,"2022-08-11"),
+(19,11,"2021-04-11");
+
+-- Insert data food_type
+INSERT INTO food_type (type_name)
+VALUES
+	("Desert"),
+	("Main Dish"),
+	("Appetizer"),
+	("Others");
+
+
+-- Insert data food
+INSERT INTO food (food_name, image, price, descriptions, type_id)
+VALUES
+	("Spanish Paella Valenciana", "https://insanelygoodrecipes.com/wp-content/uploads/2022/02/Paella-Valenciana-683x1024.jpg", 10.5, "A nice dish to eat", 1),
+	("Indian Butter Chicken", "https://i.pinimg.com/564x/4c/3e/8a/4c3e8ad919605039cd253344e98108fd.jpg", 10, "chicken", 1),
+	("Spinach and Ricotta", "You know the Spinach Image, right?", 9, "Nice to Have", 2),
+	("Italian Margherita Pizza", "https://i.pinimg.com/564x/c6/77/8c/c6778c854d8fda310fb8f33950272eff.jpg", 20, "It's a purple Pesto", 4),
+	("Beefsteak", "Insert beefsteak image", 25, "Steak and Beef", 2),
+	("Chicken Stroganoff", "Yeah, here come the Stroganoff", 17, "That chicken", 2),
+	("TURKISH DONER KEBAB", "https://www.worldtravelconnector.com/wp-content/uploads/2019/11/Famous-foods-around-the-world_doner-kebab.jpg", 20, "The pasta prawn", 2),
+	("Salmon Fetucccine", "Fetucccine image", 15, "The Fectucccine", 4),
+	("MIDDLE EASTERN HUMMUS", "https://www.worldtravelconnector.com/wp-content/uploads/2018/10/Hummus.jpg", 25, "Great! Here is your pizza", 2),
+	("Chocolate Lava Cake", "Volcano image", 5, "Nice sweet and melting", 3),
+	("MIDDLE EASTERN FALAFEL", "https://www.worldtravelconnector.com/wp-content/uploads/2018/10/Falafel-in-Israel.jpg", 20, "Fresh n Fresh", 3),
+	("GREEK GYRO", "https://www.worldtravelconnector.com/wp-content/uploads/2019/11/FAMOUS-FOODS-AROUND-THE-WORLD_gyros.jpg", 10, "Fresh n Fresh", 3),
+	("Korean Bibimbap", "https://i.pinimg.com/564x/41/9e/80/419e8063f16c1f79a43dd8434c81e198.jpg", 10, "Korean famous rice dish", 2),
+	("Japanese Sushi Rolls", "https://i.pinimg.com/564x/d2/bb/b6/d2bbb6ec80ebd8a85a37b0f59d1503a2.jpg", 5, "Japanese sushi rolls", 4),
+	("Thai Pad Thai", "https://i.pinimg.com/564x/bb/ae/19/bbae19c206c6b614794c79831bb771ab.jpg", 11, "Thai pad thai", 1);
+	
+-- Insert data orders
+INSERT INTO orders(user_id, food_id, amount, codes, arr_sub_id)
+VALUES
+	(1, 1, 5, "ancs", "1, 2, 5, 11"),
+	(1, 2, 1, "anco", "2, 5, 15"),
+	(1, 5, 2, "9ncj", "7, 8, 9"),
+	(1, 4, 4, "59an", "1, 3, 10, 6"),
+	(5, 5, 2, "5y71", "4,1"),
+	(5, 6, 2, "5y71", "4,1,2,11"),
+	(7, 12, 5, "49na", "6,7,8"),
+	(7, 9, 5, "49nd", "6,7,8,9,10"),
+	(7, 10, 1, "49nb", "4, 5, 11"),
+	(7, 3, 1, "49nc", "4, 5, 11"),
+	(2, 9, 7, "19cn", "3, 4, 6"),
+	(2, 5, 7, "19cnm", "3, 4, 6"),
+	(4, 7, 4, "59na", "2"),
+	(2, 2, 9, "9xas", "3"),
+	(5, 3, 10, "93nx", "4"),
+	(5, 2, 3, "42zo", "2, 3"),
+	(5, 8, 2, "9ihz", "1, 2, 3"),
+	(7, 2, 1, "57ao", "1, 5"),
+	(7, 6, 6, "907u", "2, 4"),
+	(2, 10, 2, "591z", "3"),
+	(4, 9, 3, "5555", "6"),
+	(6, 14, 5, "4444", "5"),
+	(9, 14, 5, "4445", "5"),
+	(5, 15, 9, "3333", "3, 5"),
+	(7, 11, 8, "2222", "5"),
+	(2, 8, 4, "anz0", "1, 2, 4"),
+	(2, 7, 2, "uun4", "3, 5, 7"),
+	(4, 2, 3, "oba1", "5, 6, 9"),
+	(3, 6, 8, "ahb5", "1, 6, 10"),
+	(3, 3, 1, "yp76", "1, 3, 11"),
+	(3, 10, 1, "4p9b", "2, 5, 8"),
+	(5, 12, 1, "495s", "4, 5, 9"),
+	(7, 4, 1, "58hn", "2, 6, 10"),
+	(4, 5, 2, "jap2", "3, 6, 5"),
+	(19, 3, 3, "4ac0", "5, 6, 7"),
+	(19, 5, 4, "998u", "6, 9, 10"),
+	(19, 1, 3, "inc7", "1, 3, 5"),
+	(19, 2, 3, "inc8", "1, 3, 5"),
+	(19, 15, 3, "inc9", "1, 3, 5");
+	
+-- Insert data sub_food
+INSERT INTO sub_food (sub_name, sub_price, food_id)
+VALUES
+	("Banh Trang", 4, 1),
+	("Hu tieu", 5, 1),
+	("Hong Dao", 15, 1),
+	("Muoi Tieu", 1, 1),
+	("Tao", 7, 2),
+	("Dau Phong", 5, 2),
+	("Banh Bong", 4, 2),
+	("Hong", 10, 2),
+	("Chanh", 7, 3),
+	("Banh Tieu", 5, 3),
+	("Muoi Chanh", 1, 3),
+	("Tao Ep", 8, 4),
+	("Dau Do", 9, 4),
+	("Nga Voi", 5, 5),
+	("Nuoc La", 6, 6),
+	("Kem", 4, 7),
+	("Oreo", 5, 8),
+	("Banh Kem", 15, 9),
+	("Moose", 10, 9),
+	("Tiramisu", 10, 9),
+	("Ep Thom", 5, 10),
+	("Hoa Giay", 1, 10),
+	("Nabati", 5, 11),
+	("Super Dark Chocolate", 12, 10),
+	("Flan", 10, 10),
+	("Banh It", 5, 11),
+	("Gan", 5, 11),
+	("Hoa Hong", 15, 11),
+	("Huong Duong", 7, 11),
+	("Rau Cau", 15, 11),
+	("Dau Xanh", 9, 11);

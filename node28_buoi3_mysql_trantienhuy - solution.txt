@@ -1,0 +1,137 @@
+-- 1) Tìm 5 người đã like nhà hàng nhiều nhất.
+
+/* Cach 1 : Dung subquery */ 
+	SELECT users.user_id, users.full_name, users.email, users.passwords
+	FROM users
+	WHERE users.user_id IN (
+		SELECT * FROM (
+			SELECT user_id
+			FROM like_res
+			GROUP BY like_res.user_id
+			ORDER BY COUNT(*) DESC
+			LIMIT 5
+		) AS t1
+	);
+
+/* Cach 2 : Dung inner join */ 
+	SELECT t1.user_id, t1.full_name, t1.email, t1.passwords
+	FROM users AS t1
+	JOIN like_res AS t2
+	ON t1.user_id = t2.user_id
+	GROUP BY t1.user_id
+	ORDER BY COUNT(*) DESC
+	LIMIT 5;
+
+
+/* Cach 3 : Dung inner join = WHERE*/ 
+	SELECT t1.user_id, t1.full_name, t1.email, t1.passwords
+	FROM users AS t1, like_res AS t2
+	WHERE t1.user_id = t2.user_id
+	GROUP BY t1.user_id
+	ORDER BY COUNT(*) DESC
+	LIMIT 5;
+
+/* Cach 4 : Dung left join */ 
+	SELECT users.user_id, users.full_name, users.email, users.passwords
+	FROM users 
+	LEFT JOIN (
+		SELECT user_id
+		FROM like_res
+		GROUP BY like_res.user_id
+		ORDER BY COUNT(*) DESC
+		LIMIT 5
+	) AS t1
+	ON users.user_id = t1.user_id
+	WHERE t1.user_id IS NOT NULL;
+
+-- 2) Tìm 5 người đã like nhà hàng nhiều nhất.
+/* Cach 1 : Dung subquery */
+	SELECT t1.res_id, t1.res_name, t1.image, t1.descriptions
+	FROM restaurant AS t1
+	WHERE t1.res_id IN (
+		SELECT res_id
+		FROM (
+			SELECT res_id, COUNT(*)
+			FROM like_res
+			GROUP BY res_id
+			ORDER BY COUNT(*) DESC
+			LIMIT 2
+		) AS t2
+	);
+	
+/* Cach 2 : Dung inner join */
+	SELECT t1.res_id, t1.res_name, t1.image, t1.descriptions
+	FROM restaurant AS t1
+	JOIN like_res AS t2
+	ON t1.res_id = t2.res_id
+	GROUP BY t1.res_id
+	ORDER BY COUNT(*) DESC
+	LIMIT 2;
+	
+/* Cach 3 : Dung inner join = WHERE*/
+	SELECT t1.res_id, t1.res_name, t1.image, t1.descriptions
+	FROM restaurant AS t1, like_res AS t2
+	WHERE t1.res_id = t2.res_id
+	GROUP BY t1.res_id
+	ORDER BY COUNT(*) DESC
+	LIMIT 2;
+	
+-- 3) Tìm người đã đặt nhà hàng nhiều nhất
+/* Cach 1 : Dung subquery */
+	SELECT t1.user_id, t1.full_name, t1.email, t1.passwords
+	FROM users AS t1
+	WHERE t1.user_id IN (
+		SELECT *
+		FROM (
+			SELECT user_id
+			FROM orders
+			GROUP BY user_id
+			ORDER BY COUNT(*) DESC
+			LIMIT 1
+		) AS t2
+	);
+
+/* Cach 2 : Dung inner join */
+	SELECT t1.user_id, COUNT(*) AS count_orders
+	FROM users AS t1
+	JOIN orders AS t2
+	ON t1.user_id = t2.user_id
+	GROUP BY t2.user_id
+	ORDER BY COUNT(*) DESC
+	LIMIT 1
+
+/* Cach 3 : Dung inner join voi subquery va ham Max */
+	SELECT t1.user_id, COUNT(*) AS count_orders
+	FROM users AS t1
+	JOIN orders AS t2
+	ON t1.user_id = t2.user_id
+	GROUP BY t2.user_id
+	HAVING count_orders = (
+		SELECT MAX(count_orders_per_user)
+		FROM (
+			SELECT user_id, COUNT(*) AS count_orders_per_user
+			FROM orders
+			GROUP BY user_id
+		) AS t3
+	)
+	
+-- 4) Tìm người dùng không hoạt động trong hệ thống
+	SELECT *
+	FROM users
+	LEFT JOIN orders
+	ON users.user_id = orders.user_id
+	LEFT JOIN like_res
+	ON users.user_id = like_res.user_id
+	LEFT JOIN rate_res
+	ON users.user_id = rate_res.user_id
+	WHERE (orders.user_id IS NULL AND orders.food_id IS NULL) AND (like_res.date_like IS NULL) AND (rate_res.date_rate IS NULL)
+	
+-- 5) Tính trung bình sub_food của một food
+	SELECT food.food_id, food.food_name, number_sub_food
+	FROM food
+	JOIN (
+		SELECT sub_food.food_id, COUNT(*) AS number_sub_food
+		FROM sub_food
+		GROUP BY sub_food.food_id
+	) AS t2
+	ON food.food_id = t2.food_id
